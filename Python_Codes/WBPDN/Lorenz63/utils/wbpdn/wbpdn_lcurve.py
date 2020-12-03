@@ -78,7 +78,7 @@ def solveBP(X, y, w = None, lambda_reg = 0, verbose = False):
     #Define lambda
     lambd.value = lambda_reg
     #Solve BPDN using CVXOPT
-    problem.solve(solver=cp.CVXOPT, verbose=verbose)
+    problem.solve(solver = cp.CVXOPT, verbose=verbose)
     #problem.solve()
     #De-normalize solution
     sol = np.dot(Wnw, beta_tilde.value)
@@ -371,7 +371,7 @@ def lcurve_corner(X, y, w = None, lambda_min = 1e10, lambda_max = 1e-10, epsilon
 
                 #Run trend filter with current lambda
 
-                bpdn = solveBP(X, y, w, lambda_reg = current_lambda)
+                bpdn = solveBP(X, y, w, lambda_reg = current_lambda, verbose = verbose)
                 ress[s], regs[s] = bpdn[1]
             
             normalization_coefs = normalize_get(ress, regs)
@@ -407,7 +407,7 @@ def lcurve_corner(X, y, w = None, lambda_min = 1e10, lambda_max = 1e-10, epsilon
             #Update interior lambda and interior point
             lambda_vec[1] = 10 ** ( (np.log10(lambda_vec[3]) + pGS * np.log10(lambda_vec[0])) / (1 + pGS) ) 
 
-            bpdn = solveBP(X, y, w, lambda_reg = lambda_vec[1])
+            bpdn = solveBP(X, y, w, lambda_reg = lambda_vec[1], verbose = verbose)
             res, reg = bpdn[1]
             
             xi, eta = normalize_fit(res, reg, normalization_coefs)
@@ -431,7 +431,7 @@ def lcurve_corner(X, y, w = None, lambda_min = 1e10, lambda_max = 1e-10, epsilon
             #Update interior lambda and interior point
             lambda_vec[1] = 10 ** ( (np.log10(lambda_vec[3]) + pGS * np.log10(lambda_vec[0])) / (1 + pGS) ) 
             
-            bpdn = solveBP(X, y, w, lambda_reg = lambda_vec[1])
+            bpdn = solveBP(X, y, w, lambda_reg = lambda_vec[1], verbose = verbose)
             res, reg = bpdn[1]
             
             xi, eta = normalize_fit(res, reg, normalization_coefs)
@@ -452,7 +452,7 @@ def lcurve_corner(X, y, w = None, lambda_min = 1e10, lambda_max = 1e-10, epsilon
             #Update interior lambda and interior point
             lambda_vec[2] = 10 ** ( np.log10(lambda_vec[0]) + np.log10(lambda_vec[3]) - np.log10(lambda_vec[1]) )
             
-            bpdn = solveBP(X, y, w, lambda_reg = lambda_vec[2])
+            bpdn = solveBP(X, y, w, lambda_reg = lambda_vec[2], verbose = verbose)
             res, reg = bpdn[1]
             
             xi, eta = normalize_fit(res, reg, normalization_coefs)
@@ -479,7 +479,7 @@ def lcurve_corner(X, y, w = None, lambda_min = 1e10, lambda_max = 1e-10, epsilon
             print(f'  Maximum number of {itr} iterations reached.')
 
     #Solve for optimal lambda
-    bpdn = solveBP(X, y, w, lambda_reg = current_lambda)
+    bpdn = solveBP(X, y, w, lambda_reg = current_lambda, verbose = verbose)
     sol = bpdn[0]
     res, reg = bpdn[1]
     
@@ -493,7 +493,7 @@ def lcurve_corner(X, y, w = None, lambda_min = 1e10, lambda_max = 1e-10, epsilon
 
     return [sol, current_lambda, lambda_itr, (lc_res, lc_reg)]
 
-def full_lcurve(X, y, w = None, lambda_min = 1e-10, lambda_max = 1e10, n_lambdas = 100, tol = 1e-8, normalize = False, plot_lc = False):
+def full_lcurve(X, y, w = None, lambda_min = 1e-10, lambda_max = 1e10, n_lambdas = 100, tol = 1e-8, normalize = False, plot_lc = False, verbose = False):
     
     p_basis = X.shape[1]
     sol = np.zeros((p_basis, n_lambdas))
@@ -515,7 +515,7 @@ def full_lcurve(X, y, w = None, lambda_min = 1e-10, lambda_max = 1e10, n_lambdas
     #Loop over lambdas
     for i, lambd in enumerate(lambdas):
     
-        bpdn = solveBP(X, y, w, lambda_reg = lambd)
+        bpdn = solveBP(X, y, w, lambda_reg = lambd, verbose = verbose)
         sol[:,i] = bpdn[0]
         residual_lc[i], reg_residual_lc[i] = bpdn[1]
     
